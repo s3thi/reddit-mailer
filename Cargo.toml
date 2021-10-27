@@ -7,3 +7,16 @@ edition = "2018"
 reqwest = { version = "0.11", features = ["json", "blocking"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.68"
+rusqlite = "0.26.1"
+
+[lib]
+name = "librm"
+path = "src/lib.rs"
+
+[[bin]]
+name = "rm-watcher"
+path = "src/bin/watcher.rs"
+
+[[bin]]
+name = "rm-sender"
+path = "src/bin/sender.rs"

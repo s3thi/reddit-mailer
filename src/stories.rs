@@ -21,17 +21,16 @@ struct StoryListingResponseDataChildData {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Story {
-    subreddit: String,
-    title: String,
-    score: u32,
-    is_self: bool,
-    created_utc: f64,
-    stickied: bool,
-    author: String,
-    num_comments: u32,
-    permalink: String,
-    url: String,
-    subreddit_subscribers: u32,
+    pub permalink: String,
+    pub subreddit: String,
+    pub title: String,
+    pub score: u32,
+    pub created_utc: f64,
+    pub stickied: bool,
+    pub author: String,
+    pub num_comments: u32,
+    pub url: String,
+    pub subreddit_subscribers: u32,
 }
 
 pub fn get_hot_stories(

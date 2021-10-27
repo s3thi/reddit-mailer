@@ -1,8 +1,6 @@
-mod stories;
-mod token;
-
-use stories::get_hot_stories;
-use token::get_bearer_token;
+use librm::db::DB;
+use librm::stories::get_hot_stories;
+use librm::token::get_bearer_token;
 
 use serde::{Deserialize, Serialize};
 use serde_json;
@@ -30,8 +28,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     )?;
 
     let stories = get_hot_stories(&config.subreddits, &bearer_token)?;
+    let mut db = DB::new()?;
     for s in stories {
-        println!("{:?}", s);
+        db.save_story(&s)?;
     }
 
     Ok(())
