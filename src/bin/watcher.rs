@@ -3,7 +3,6 @@ use librm::stories::get_hot_stories;
 use librm::token::get_bearer_token;
 
 use serde::{Deserialize, Serialize};
-use serde_json;
 use std::error::Error;
 use std::fs::read_to_string;
 

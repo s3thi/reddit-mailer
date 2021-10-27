@@ -2,7 +2,7 @@ use crate::stories::Story;
 use rusqlite::{params, Connection, Error as DBError};
 use std::path::Path;
 
-const SCHEMA_SQL: &'static str = "
+const SCHEMA_SQL: &str = "
     CREATE TABLE stories (
         permalink TEXT PRIMARY KEY,
         subreddit TEXT NOT NULL,
@@ -15,7 +15,7 @@ const SCHEMA_SQL: &'static str = "
     );
 ";
 
-const INSERT_STORY_SQL: &'static str = "
+const INSERT_STORY_SQL: &str = "
     INSERT INTO stories (
         permalink,
         subreddit,

@@ -2,7 +2,7 @@ use reqwest::blocking as reqwest;
 use serde::Deserialize;
 use std::error::Error;
 
-const USER_AGENT: &'static str = "macos:reddit-mailer:0.1.0 (by /u/GeneralMaximus)";
+const USER_AGENT: &str = "macos:reddit-mailer:0.1.0 (by /u/GeneralMaximus)";
 
 #[derive(Deserialize, Debug)]
 struct StoryListingResponse {
@@ -34,7 +34,7 @@ pub struct Story {
 }
 
 pub fn get_hot_stories(
-    subreddits: &Vec<String>,
+    subreddits: &[String],
     bearer_token: &str,
 ) -> Result<Vec<Story>, Box<dyn Error>> {
     let http_client = reqwest::Client::new();
