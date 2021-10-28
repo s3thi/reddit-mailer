@@ -1,5 +1,7 @@
+use log::info;
 use reqwest::blocking as reqwest;
 use serde::Deserialize;
+
 use std::collections::HashMap;
 use std::error::Error;
 
@@ -14,6 +16,8 @@ pub fn get_bearer_token(
     username: &str,
     password: &str,
 ) -> Result<String, Box<dyn Error>> {
+    info!("Getting a bearer token from reddit");
+
     let mut auth_req_body = HashMap::<&str, &str>::new();
     auth_req_body.insert("grant_type", "password");
     auth_req_body.insert("username", username);

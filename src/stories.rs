@@ -1,5 +1,7 @@
+use log::info;
 use reqwest::blocking as reqwest;
 use serde::Deserialize;
+
 use std::error::Error;
 
 const USER_AGENT: &str = "macos:reddit-mailer:0.1.0 (by /u/GeneralMaximus)";
@@ -37,6 +39,8 @@ pub fn get_hot_stories(
     subreddits: &[String],
     bearer_token: &str,
 ) -> Result<Vec<Story>, Box<dyn Error>> {
+    info!("Getting hot stories");
+
     let http_client = reqwest::Client::new();
     let res = http_client
         .get(format!(
