@@ -2,7 +2,7 @@ use log::info;
 use reqwest::blocking as reqwest;
 use serde::Deserialize;
 
-use std::error::Error;
+use crate::error::{RMError, RMErrorKind};
 
 const USER_AGENT: &str = "macos:reddit-mailer:0.1.0 (by /u/GeneralMaximus)";
 
@@ -35,10 +35,7 @@ pub struct Story {
     pub subreddit_subscribers: u32,
 }
 
-pub fn get_hot_stories(
-    subreddits: &[String],
-    bearer_token: &str,
-) -> Result<Vec<Story>, Box<dyn Error>> {
+pub fn get_hot_stories(subreddits: &[String], bearer_token: &str) -> Result<Vec<Story>, RMError> {
     info!("Getting hot stories");
 
     let http_client = reqwest::Client::new();
@@ -49,9 +46,22 @@ pub fn get_hot_stories(
         ))
         .bearer_auth(bearer_token)
         .header("User-Agent", USER_AGENT)
-        .send()?;
-    let res = res.text()?;
-    let res: StoryListingResponse = serde_json::from_str(&res)?;
+        .send()
+        .map_err(|_| RMError {
+            kind: RMErrorKind::RedditNetwork,
+            message: "Failed to get hot stories from reddit".to_string(),
+        })?;
+
+    let res = res.text().map_err(|_| RMError {
+        kind: RMErrorKind::Io,
+        message: "Could not read reddit response body".to_string(),
+    })?;
+
+    let res: StoryListingResponse = serde_json::from_str(&res).map_err(|_| RMError {
+        kind: RMErrorKind::RedditResponseParse,
+        message: "Could not parse stories returned by reddit".to_string(),
+    })?;
+
     let stories: Vec<Story> = res.data.children.into_iter().map(|c| c.data).collect();
 
     Ok(stories)

@@ -1,9 +1,10 @@
+use std::collections::HashMap;
+
 use log::info;
 use reqwest::blocking as reqwest;
 use serde::Deserialize;
 
-use std::collections::HashMap;
-use std::error::Error;
+use crate::error::{RMError, RMErrorKind};
 
 #[derive(Deserialize, Debug)]
 pub struct AccessTokenResponse {
@@ -15,7 +16,7 @@ pub fn get_bearer_token(
     client_secret: &str,
     username: &str,
     password: &str,
-) -> Result<String, Box<dyn Error>> {
+) -> Result<String, RMError> {
     info!("Getting a bearer token from reddit");
 
     let mut auth_req_body = HashMap::<&str, &str>::new();
@@ -28,7 +29,16 @@ pub fn get_bearer_token(
         .post("https://www.reddit.com/api/v1/access_token")
         .basic_auth(client_id, Some(client_secret))
         .form(&auth_req_body)
-        .send()?;
-    let res: AccessTokenResponse = res.json()?;
+        .send()
+        .map_err(|_| RMError {
+            kind: RMErrorKind::RedditNetwork,
+            message: "Error fetching bearer token from reddit".to_string(),
+        })?;
+
+    let res: AccessTokenResponse = res.json().map_err(|_| RMError {
+        kind: RMErrorKind::RedditResponseParse,
+        message: "Error parsing json response from reddit".to_string(),
+    })?;
+
     Ok(res.access_token)
 }

@@ -81,7 +81,7 @@ impl DB {
     pub fn save_stories(&mut self, stories: &[Story]) -> Result<(), DBError> {
         info!("Writing stories to database");
         for s in stories {
-            self.save_story(&s)?;
+            self.save_story(s)?;
         }
 
         Ok(())

@@ -1,15 +1,12 @@
-use librm::config::AppConfig;
 use librm::db::DB;
 use librm::stories::get_hot_stories;
 use librm::token::get_bearer_token;
+use librm::{config::AppConfig, error::RMError};
 
 use env_logger::Env;
-use log::info;
-use std::error::Error;
+use log::{error, info};
 
-fn main() -> Result<(), Box<dyn Error>> {
-    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
-
+fn watch() -> Result<(), RMError> {
     let config = AppConfig::read()?;
 
     let bearer_token = get_bearer_token(
@@ -24,5 +21,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     db.save_stories(&stories)?;
 
     info!("Success!");
+
     Ok(())
+}
+
+fn main() {
+    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+    match watch() {
+        Ok(_) => {}
+        Err(e) => error!("{}", e.message),
+    }
 }
