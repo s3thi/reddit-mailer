@@ -11,6 +11,7 @@ rusqlite = "0.26"
 log = "0.4"
 env_logger = "0.9"
 dirs = "4.0"
+chrono = "0.4"
 
 [lib]
 name = "librm"

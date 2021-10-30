@@ -63,7 +63,6 @@ impl DB {
     }
 
     fn save_story(&mut self, story: &Story) -> Result<usize, DBError> {
-        let created_iso8601 = "xxx";
         self.connection.execute(
             INSERT_STORY_SQL,
             params![
@@ -71,7 +70,7 @@ impl DB {
                 story.subreddit,
                 story.title,
                 story.score,
-                created_iso8601,
+                story.get_created_utc_iso8601(),
                 story.author,
                 story.num_comments,
                 story.url

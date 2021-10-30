@@ -1,6 +1,7 @@
 use log::info;
 use reqwest::blocking as reqwest;
 use serde::Deserialize;
+use chrono::prelude::*;
 
 use crate::error::{RMError, RMErrorKind};
 
@@ -35,6 +36,13 @@ pub struct Story {
     pub subreddit_subscribers: u32,
 }
 
+impl Story {
+    pub fn get_created_utc_iso8601(&self) -> String {
+        let naive = NaiveDateTime::from_timestamp(self.created_utc as i64, 0);
+        DateTime::<Utc>::from_utc(naive, Utc).to_rfc3339()
+    }
+}
+
 pub fn get_hot_stories(subreddits: &[String], bearer_token: &str) -> Result<Vec<Story>, RMError> {
     info!("Getting hot stories");
 
@@ -57,9 +65,9 @@ pub fn get_hot_stories(subreddits: &[String], bearer_token: &str) -> Result<Vec<
         message: "Could not read reddit response body".to_string(),
     })?;
 
-    let res: StoryListingResponse = serde_json::from_str(&res).map_err(|_| RMError {
+    let res: StoryListingResponse = serde_json::from_str(&res).map_err(|e| RMError {
         kind: RMErrorKind::RedditResponseParse,
-        message: "Could not parse stories returned by reddit".to_string(),
+        message: format!("Could not parse stories returned by reddit: {}", e)
     })?;
 
     let stories: Vec<Story> = res.data.children.into_iter().map(|c| c.data).collect();
