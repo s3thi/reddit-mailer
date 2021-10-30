@@ -1,0 +1,13 @@
+{
+  "client_id": "<client id from reddit>",
+  "client_secret": "<client secret from reddit>",
+  "username": "<your reddit username>",
+  "password": "<your reddit password>",
+  "subreddits": [
+    "rust",
+    "golang",
+    "c_programming",
+    "emacs",
+    "archlinux"
+  ]
+}
