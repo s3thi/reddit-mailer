@@ -1,5 +1,6 @@
 use std::fs::read_to_string;
 use std::io::ErrorKind;
+use std::path::PathBuf;
 
 use dirs::config_dir;
 use log::info;
@@ -7,7 +8,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::{RMError, RMErrorKind};
 
-const CONFIG_FILE_NAME: &str = "reddit-mailer.json";
+const CONFIG_FILE_NAME: &str = "config.json";
+const DB_FILE_NAME: &str = "db.sqlite";
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AppConfig {
@@ -22,7 +24,7 @@ impl AppConfig {
     pub fn read() -> Result<Self, RMError> {
         info!("Reading configuration file");
 
-        let mut path = config_dir().unwrap();
+        let mut path = Self::get_config_dir();
         path.push(CONFIG_FILE_NAME);
         let config = read_to_string(&path).map_err(|e| match e.kind() {
             ErrorKind::NotFound => RMError {
@@ -42,5 +44,17 @@ impl AppConfig {
         })?;
 
         Ok(config)
+    }
+
+    fn get_config_dir() -> PathBuf {
+        let mut config_dir = config_dir().unwrap();
+        config_dir.push("reddit-mailer");
+        config_dir
+    }
+
+    pub fn get_db_path() -> PathBuf {
+        let mut db_path = Self::get_config_dir();
+        db_path.push(DB_FILE_NAME);
+        db_path
     }
 }

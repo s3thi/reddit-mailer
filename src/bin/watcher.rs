@@ -30,5 +30,5 @@ fn main() {
     match watch() {
         Ok(_) => {}
         Err(e) => error!("{}", e.message),
-    }
+    };
 }

@@ -1,9 +1,10 @@
-use std::path::Path;
+use std::path::PathBuf;
 
 use log::info;
 use rusqlite::{params, Connection, Error as DBError};
 
 use crate::stories::Story;
+use crate::config::AppConfig;
 
 const SCHEMA_SQL: &str = "
     CREATE TABLE stories (
@@ -40,27 +41,28 @@ pub struct DB {
 
 impl DB {
     pub fn new() -> Result<Self, DBError> {
-        if !Path::new("reddit-mailer.sqlite").exists() {
-            DB::make_new_db()
+        let db_path = AppConfig::get_db_path();
+        if !db_path.exists() {
+            DB::make_new_db(&db_path)
         } else {
-            DB::open_db()
+            DB::open_db(&db_path)
         }
     }
 
-    fn make_new_db() -> Result<Self, DBError> {
+    fn make_new_db(path: &PathBuf) -> Result<Self, DBError> {
         info!("Could not find stories database, creating a new one");
-        let db = DB::open_db()?;
+        let db = DB::open_db(&path)?;
         db.connection.execute(SCHEMA_SQL, [])?;
         Ok(db)
     }
 
-    fn open_db() -> Result<Self, DBError> {
+    fn open_db(path: &PathBuf) -> Result<Self, DBError> {
         info!("Opening stories database");
-        let connection = Connection::open("reddit-mailer.sqlite")?;
+        let connection = Connection::open(&path)?;
         Ok(Self { connection })
     }
 
-    fn save_story(&mut self, story: &Story) -> Result<(), DBError> {
+    fn save_story(&mut self, story: &Story) -> Result<usize, DBError> {
         let created_iso8601 = "xxx";
         self.connection.execute(
             INSERT_STORY_SQL,
@@ -74,8 +76,7 @@ impl DB {
                 story.num_comments,
                 story.url
             ],
-        )?;
-        Ok(())
+        )
     }
 
     pub fn save_stories(&mut self, stories: &[Story]) -> Result<(), DBError> {
