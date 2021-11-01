@@ -29,11 +29,9 @@ pub struct Story {
     pub title: String,
     pub score: u32,
     pub created_utc: f64,
-    pub stickied: bool,
     pub author: String,
     pub num_comments: u32,
     pub url: String,
-    pub subreddit_subscribers: u32,
 }
 
 impl Story {

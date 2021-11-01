@@ -2,9 +2,10 @@ use std::path::PathBuf;
 
 use log::info;
 use rusqlite::{params, Connection, Error as DBError};
+use chrono::DateTime;
 
-use crate::stories::Story;
 use crate::config::AppConfig;
+use crate::stories::Story;
 
 const SCHEMA_SQL: &str = "
     CREATE TABLE stories (
@@ -33,6 +34,21 @@ const INSERT_STORY_SQL: &str = "
     ON CONFLICT(permalink) DO UPDATE SET
         score = excluded.score,
         num_comments = excluded.num_comments;
+";
+
+const HIGHEST_SCORING_STORIES_SQL: &str = "
+    SELECT
+        permalink,
+        subreddit,
+        title,
+        score,
+        created_utc,
+        author,
+        num_comments,
+        url
+    FROM STORIES
+    ORDER BY SCORE + 20 * NUM_COMMENTS DESC
+    LIMIT 25;
 ";
 
 pub struct DB {
@@ -85,5 +101,27 @@ impl DB {
         }
 
         Ok(())
+    }
+
+    pub fn get_highest_scoring_stories(&mut self) -> Result<Vec<Story>, DBError> {
+        // TODO: really living on the edge in this function.
+        let mut stmt = self.connection.prepare(HIGHEST_SCORING_STORIES_SQL)?;
+        let story_iter = stmt.query_map([], |row| {
+            let created_utc: String = row.get(4)?;
+            let created_utc = DateTime::parse_from_rfc3339(&created_utc).unwrap();
+            let created_utc = created_utc.timestamp();
+            Ok(Story {
+                permalink: row.get(0)?,
+                subreddit: row.get(1)?,
+                title: row.get(2)?,
+                score: row.get(3)?,
+                created_utc: created_utc as f64,
+                author: row.get(5)?,
+                num_comments: row.get(6)?,
+                url: row.get(7)?,
+            })
+        })?;
+
+        Ok(story_iter.map(Result::unwrap).collect())
     }
 }
