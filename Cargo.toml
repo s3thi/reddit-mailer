@@ -12,6 +12,7 @@ log = "0.4"
 env_logger = "0.9"
 dirs = "4.0"
 chrono = "0.4"
+lettre = "0.10.0-rc.4"
 
 [lib]
 name = "librm"

@@ -104,6 +104,8 @@ impl DB {
     }
 
     pub fn get_highest_scoring_stories(&mut self) -> Result<Vec<Story>, DBError> {
+        info!("Getting highest scoring stories from the database");
+
         // TODO: really living on the edge in this function.
         let mut stmt = self.connection.prepare(HIGHEST_SCORING_STORIES_SQL)?;
         let story_iter = stmt.query_map([], |row| {

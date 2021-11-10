@@ -12,8 +12,8 @@ fn watch() -> Result<(), RMError> {
     let bearer_token = get_bearer_token(
         &config.client_id,
         &config.client_secret,
-        &config.username,
-        &config.password,
+        &config.reddit_username,
+        &config.reddit_password,
     )?;
 
     let stories = get_hot_stories(&config.subreddits, &bearer_token)?;

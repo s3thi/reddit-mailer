@@ -9,6 +9,7 @@ pub enum RMErrorKind {
     ConfigParse,
     RedditNetwork,
     RedditResponseParse,
+    SMTP,
 }
 
 #[derive(Debug)]
@@ -26,11 +27,21 @@ impl Display for RMError {
 impl Error for RMError {}
 
 impl From<rusqlite::Error> for RMError {
-    // TODO: make this conversion more useful
+    // TODO: add more context to this conversion.
     fn from(_: rusqlite::Error) -> Self {
         RMError {
             kind: RMErrorKind::Database,
             message: "Database error".to_string(),
+        }
+    }
+}
+
+impl From<lettre::transport::smtp::Error> for RMError {
+    // TODO: add more context to this conversion.
+    fn from(_: lettre::transport::smtp::Error) -> Self {
+        RMError {
+            kind: RMErrorKind::SMTP,
+            message: "Error sending email".to_string(),
         }
     }
 }

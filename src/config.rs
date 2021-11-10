@@ -15,9 +15,15 @@ const DB_FILE_NAME: &str = "db.sqlite";
 pub struct AppConfig {
     pub client_id: String,
     pub client_secret: String,
-    pub username: String,
-    pub password: String,
+    pub reddit_username: String,
+    pub reddit_password: String,
     pub subreddits: Vec<String>,
+    pub smtp_username: String,
+    pub smtp_password: String,
+    pub from_address: String,
+    pub reply_to_address: String,
+    pub to_address: String,
+    pub subject_line: String,
 }
 
 impl AppConfig {

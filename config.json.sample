@@ -1,13 +1,19 @@
 {
   "client_id": "<client id from reddit>",
   "client_secret": "<client secret from reddit>",
-  "username": "<your reddit username>",
-  "password": "<your reddit password>",
+  "reddit_username": "<your reddit username>",
+  "reddit_password": "<your reddit password>",
   "subreddits": [
     "rust",
     "golang",
     "c_programming",
     "emacs",
     "archlinux"
-  ]
+  ],
+  "smtp_username": "<your email username>",
+  "smtp_password": "<your email password>",
+  "from_address": "Reddit Mailer <reddit-mailer@example.com>",
+  "reply_to_address": "Server Admin <server.admin@example.com>",
+  "to_address": "John Doe <john@example.com>",
+  "subject_line": "Top Stories from Reddit"
 }
