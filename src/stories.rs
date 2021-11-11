@@ -1,7 +1,7 @@
+use chrono::prelude::*;
 use log::info;
 use reqwest::blocking as reqwest;
 use serde::Deserialize;
-use chrono::prelude::*;
 
 use crate::error::{RMError, RMErrorKind};
 
@@ -39,6 +39,36 @@ impl Story {
         let naive = NaiveDateTime::from_timestamp(self.created_utc as i64, 0);
         DateTime::<Utc>::from_utc(naive, Utc).to_rfc3339()
     }
+
+    pub fn render_as_list_item(&self) -> String {
+        format!(
+            r#"<li><a href="{}">{}</a> (<a href="https://www.reddit.com{}">comments</a>)</li>"#,
+            self.url, self.title, self.permalink
+        )
+    }
+
+    pub fn render_list(stories: &[Self]) -> String {
+        let stories_list = stories
+            .iter()
+            .map(|s| s.render_as_list_item())
+            .collect::<Vec<String>>()
+            .join("\n");
+
+        format!(
+            r#"
+        <!DOCTYPE html>
+        <html>
+        <body>
+            <h1>Recent Top Reddit Stories</h1>
+            <ol>
+                {}
+            </ol>
+        </body>
+        </html>
+    "#,
+            stories_list
+        )
+    }
 }
 
 pub fn get_hot_stories(subreddits: &[String], bearer_token: &str) -> Result<Vec<Story>, RMError> {
@@ -65,7 +95,7 @@ pub fn get_hot_stories(subreddits: &[String], bearer_token: &str) -> Result<Vec<
 
     let res: StoryListingResponse = serde_json::from_str(&res).map_err(|e| RMError {
         kind: RMErrorKind::RedditResponseParse,
-        message: format!("Could not parse stories returned by reddit: {}", e)
+        message: format!("Could not parse stories returned by reddit: {}", e),
     })?;
 
     let stories: Vec<Story> = res.data.children.into_iter().map(|c| c.data).collect();
