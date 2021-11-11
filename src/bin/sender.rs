@@ -24,7 +24,7 @@ fn make_email_message(body: &str, config: &AppConfig) -> Message {
 fn make_mailer(config: &AppConfig) -> SmtpTransport {
     info!("Creating SMTP configuration");
     let creds = Credentials::new(config.smtp_username.clone(), config.smtp_password.clone());
-    SmtpTransport::relay("smtp.fastmail.com")
+    SmtpTransport::relay(&config.smtp_server)
         .unwrap()
         .credentials(creds)
         .build()

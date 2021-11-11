@@ -18,6 +18,7 @@ pub struct AppConfig {
     pub reddit_username: String,
     pub reddit_password: String,
     pub subreddits: Vec<String>,
+    pub smtp_server: String,
     pub smtp_username: String,
     pub smtp_password: String,
     pub from_address: String,
