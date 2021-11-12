@@ -43,6 +43,9 @@ fn send() -> Result<(), RMError> {
     info!("Sending newsletter");
     mailer.send(&email)?;
 
+    info!("Cleaning up database");
+    db.mark_highest_scoring_stories()?;
+
     info!("Done!");
     Ok(())
 }

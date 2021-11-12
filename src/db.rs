@@ -16,7 +16,8 @@ const SCHEMA_SQL: &str = "
         created_utc TEXT NOT NULL,
         author TEXT NOT NULL,
         num_comments INTEGER NOT NULL,
-        url TEXT NOT NULL
+        url TEXT NOT NULL,
+        was_mailed INTEGER NOT NULL
     );
 ";
 
@@ -29,8 +30,9 @@ const INSERT_STORY_SQL: &str = "
         created_utc,
         author,
         num_comments,
-        url
-    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
+        url,
+        was_mailed
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 0)
     ON CONFLICT(permalink) DO UPDATE SET
         score = excluded.score,
         num_comments = excluded.num_comments;
@@ -45,9 +47,19 @@ const HIGHEST_SCORING_STORIES_SQL: &str = "
         created_utc,
         author,
         num_comments,
-        url
-    FROM STORIES
-    ORDER BY SCORE + 20 * NUM_COMMENTS DESC
+        url,
+        was_mailed
+    FROM stories
+    WHERE NOT(was_mailed)
+    ORDER BY score + 20 * num_comments DESC
+    LIMIT 25;
+";
+
+const MARK_HIGHEST_SCORING_STORIES_SQL: &str = "
+    UPDATE stories
+    SET was_mailed = 1
+    WHERE NOT(was_mailed)
+    ORDER BY score + 20 * num_comments DESC
     LIMIT 25;
 ";
 
@@ -121,9 +133,17 @@ impl DB {
                 author: row.get(5)?,
                 num_comments: row.get(6)?,
                 url: row.get(7)?,
+                was_mailed: row.get(8)?
             })
         })?;
 
         Ok(story_iter.map(Result::unwrap).collect())
+    }
+
+    pub fn mark_highest_scoring_stories(&mut self) -> Result<(), DBError> {
+        let mut stmt = self.connection.prepare(MARK_HIGHEST_SCORING_STORIES_SQL)?;
+        stmt.execute([])?;
+
+        Ok(())
     }
 }
