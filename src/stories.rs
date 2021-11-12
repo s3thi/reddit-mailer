@@ -32,6 +32,7 @@ pub struct Story {
     pub author: String,
     pub num_comments: u32,
     pub url: String,
+    pub was_mailed: Option<u8>
 }
 
 impl Story {
@@ -42,8 +43,8 @@ impl Story {
 
     pub fn render_as_list_item(&self) -> String {
         format!(
-            r#"<li><a href="{}">{}</a> (<a href="https://www.reddit.com{}">comments</a>)</li>"#,
-            self.url, self.title, self.permalink
+            r#"<li><a href="{}">{}</a> (<a href="https://www.reddit.com{}">comments</a>) from /r/{}</li>"#,
+            self.url, self.title, self.permalink, self.subreddit
         )
     }
 
