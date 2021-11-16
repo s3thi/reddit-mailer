@@ -29,6 +29,9 @@ fn main() {
     env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
     match watch() {
         Ok(_) => {}
-        Err(e) => error!("{}", e.message),
+        Err(e) => {
+            error!("{}", e.message);
+            std::process::exit(1);
+        }
     };
 }
