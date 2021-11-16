@@ -45,9 +45,9 @@ impl AppConfig {
         })?;
 
         // TODO: add more details about missing fields, etc.
-        let config = serde_json::from_str(&config).map_err(|_| RMError {
+        let config = serde_json::from_str(&config).map_err(|err| RMError {
             kind: RMErrorKind::ConfigParse,
-            message: format!("Could not parse config file: {}", path.display()),
+            message: format!("Could not parse config file at {}: {}", path.display(), err)
         })?;
 
         Ok(config)
