@@ -1,0 +1,9 @@
+[Unit]
+Description=Schedule rm-watcher every 6 hours
+
+[Timer]
+OnUnitActiveSec=3h
+Unit=rm-watcher.service
+
+[Install]
+WantedBy=timers.target

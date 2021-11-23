@@ -1,0 +1,6 @@
+[Unit]
+Description=A tool that downloads hot stories from reddit
+
+[Service]
+Type=simple
+ExecStart=/home/your-user-name/.cargo/bin/rm-watcher

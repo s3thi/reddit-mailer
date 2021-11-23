@@ -1,0 +1,8 @@
+[Unit]
+Description=A tool that emails hot stories downloaded from reddit
+Wants=rm-sender-scheduler.timer
+
+[Service]
+Type=simple
+ExecStart=/home/your-user-name/.cargo/bin/rm-sender
+

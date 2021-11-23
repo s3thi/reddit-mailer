@@ -1,0 +1,10 @@
+[Unit]
+Description=Schedule rm-sender to email reddit stories every morning
+Requires=rm-sender.service
+
+[Timer]
+OnCalendar=*-*-* 1:30:00
+Unit=rm-sender.service
+
+[Install]
+WantedBy=timers.target
