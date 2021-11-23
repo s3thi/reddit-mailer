@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
+use chrono::DateTime;
 use log::info;
 use rusqlite::{params, Connection, Error as DBError};
-use chrono::DateTime;
 
 use crate::config::AppConfig;
 use crate::stories::Story;
@@ -13,6 +13,8 @@ const SCHEMA_SQL: &str = "
         subreddit TEXT NOT NULL,
         title TEXT NOT NULL,
         score INTEGER NOT NULL,
+        subreddit_subscribers INTEGER NOT NULL,
+        normalized_score REAL NOT NULL,
         created_utc TEXT NOT NULL,
         author TEXT NOT NULL,
         num_comments INTEGER NOT NULL,
@@ -27,12 +29,14 @@ const INSERT_STORY_SQL: &str = "
         subreddit,
         title,
         score,
+        subreddit_subscribers,
+        normalized_score,
         created_utc,
         author,
         num_comments,
         url,
         was_mailed
-    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 0)
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, 0)
     ON CONFLICT(permalink) DO UPDATE SET
         score = excluded.score,
         num_comments = excluded.num_comments;
@@ -44,6 +48,7 @@ const HIGHEST_SCORING_STORIES_SQL: &str = "
         subreddit,
         title,
         score,
+        subreddit_subscribers,
         created_utc,
         author,
         num_comments,
@@ -51,7 +56,7 @@ const HIGHEST_SCORING_STORIES_SQL: &str = "
         was_mailed
     FROM stories
     WHERE NOT(was_mailed)
-    ORDER BY score + 20 * num_comments DESC
+    ORDER BY normalized_score DESC
     LIMIT 25;
 ";
 
@@ -59,7 +64,7 @@ const MARK_HIGHEST_SCORING_STORIES_SQL: &str = "
     UPDATE stories
     SET was_mailed = 1
     WHERE NOT(was_mailed)
-    ORDER BY score + 20 * num_comments DESC
+    ORDER BY normalized_score DESC
     LIMIT 25;
 ";
 
@@ -98,6 +103,8 @@ impl DB {
                 story.subreddit,
                 story.title,
                 story.score,
+                story.subreddit_subscribers,
+                story.get_normalized_score(story.subreddit_subscribers),
                 story.get_created_utc_iso8601(),
                 story.author,
                 story.num_comments,
@@ -121,7 +128,7 @@ impl DB {
         // TODO: really living on the edge in this function.
         let mut stmt = self.connection.prepare(HIGHEST_SCORING_STORIES_SQL)?;
         let story_iter = stmt.query_map([], |row| {
-            let created_utc: String = row.get(4)?;
+            let created_utc: String = row.get(5)?;
             let created_utc = DateTime::parse_from_rfc3339(&created_utc).unwrap();
             let created_utc = created_utc.timestamp();
             Ok(Story {
@@ -129,11 +136,12 @@ impl DB {
                 subreddit: row.get(1)?,
                 title: row.get(2)?,
                 score: row.get(3)?,
+                subreddit_subscribers: row.get(4)?,
                 created_utc: created_utc as f64,
-                author: row.get(5)?,
-                num_comments: row.get(6)?,
-                url: row.get(7)?,
-                was_mailed: row.get(8)?
+                author: row.get(6)?,
+                num_comments: row.get(7)?,
+                url: row.get(8)?,
+                was_mailed: row.get(9)?,
             })
         })?;
 

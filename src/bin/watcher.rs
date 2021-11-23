@@ -1,5 +1,5 @@
 use librm::db::DB;
-use librm::stories::get_hot_stories;
+use librm::stories::{get_hot_stories};
 use librm::token::get_bearer_token;
 use librm::{config::AppConfig, error::RMError};
 
@@ -18,7 +18,7 @@ fn watch() -> Result<(), RMError> {
 
     let stories = get_hot_stories(&config.subreddits, &bearer_token)?;
     let mut db = DB::new()?;
-    db.save_stories(&stories)?;
+    db.save_stories(&stories)?; 
 
     info!("Success!");
 

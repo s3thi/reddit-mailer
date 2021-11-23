@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use chrono::prelude::*;
 use log::info;
 use reqwest::blocking as reqwest;
@@ -31,8 +33,9 @@ pub struct Story {
     pub created_utc: f64,
     pub author: String,
     pub num_comments: u32,
+    pub subreddit_subscribers: u32,
     pub url: String,
-    pub was_mailed: Option<u8>
+    pub was_mailed: Option<u8>,
 }
 
 impl Story {
@@ -70,6 +73,14 @@ impl Story {
             stories_list
         )
     }
+
+    pub fn get_normalized_score(&self, total_subscribers: u32) -> f64 {
+        (self.score as f64 + 20.0 * self.num_comments as f64) * self.get_normalization_factor(total_subscribers)
+    }
+
+    pub fn get_normalization_factor(&self, total_subscribers: u32) -> f64 {
+        total_subscribers as f64 / self.subreddit_subscribers as f64
+    }
 }
 
 pub fn get_hot_stories(subreddits: &[String], bearer_token: &str) -> Result<Vec<Story>, RMError> {
@@ -102,6 +113,23 @@ pub fn get_hot_stories(subreddits: &[String], bearer_token: &str) -> Result<Vec<
     let stories: Vec<Story> = res.data.children.into_iter().map(|c| c.data).collect();
 
     Ok(stories)
+}
+
+pub fn get_total_subscribers(stories: &[Story]) -> u32 {
+    let mut subscribers_map = HashMap::<String, u32>::new();
+
+    for story in stories {
+        if !subscribers_map.contains_key(&story.subreddit) {
+            subscribers_map.insert(story.subreddit.clone(), story.subreddit_subscribers);
+        }
+    }
+
+    let mut total_subscribers = 0;
+    for s in subscribers_map.values() {
+        total_subscribers += s;
+    }
+
+    total_subscribers
 }
 
 fn join_subreddits(subreddits: &[String]) -> String {
