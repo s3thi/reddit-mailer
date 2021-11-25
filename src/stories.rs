@@ -75,7 +75,8 @@ impl Story {
     }
 
     pub fn get_normalized_score(&self, total_subscribers: u32) -> f64 {
-        (self.score as f64 + 20.0 * self.num_comments as f64) * self.get_normalization_factor(total_subscribers)
+        (self.score as f64 + 20.0 * self.num_comments as f64)
+            * self.get_normalization_factor(total_subscribers)
     }
 
     pub fn get_normalization_factor(&self, total_subscribers: u32) -> f64 {
