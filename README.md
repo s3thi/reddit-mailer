@@ -44,7 +44,7 @@ You will now be able to successfully run `rm-watcher` to download stories from
 reddit and `rm-sender` to email them to yourself. Try them out at an interactive
 shell to ensure they're working as expected.
 
-### Step 3: Configre Reddit Mailer to run at an interval using systemd
+### Step 3: Configure Reddit Mailer to run at an interval using systemd
 
 If you're on Linux, you can automate Reddit Mailer using systemd. In the
 `sample_configs/` directory you will find a set of systemd unit files that you
